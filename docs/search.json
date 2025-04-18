@@ -47,5 +47,96 @@
     "title": "lab06",
     "section": "Describing the results:",
     "text": "Describing the results:\n\nI think the results correlate with the given comparisons and it seems close to the predictions."
+  },
+  {
+    "objectID": "hyperparameter-tuning.html",
+    "href": "hyperparameter-tuning.html",
+    "title": "hyperparameter-tuning",
+    "section": "",
+    "text": "library(ggthemes)\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.0.4     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(tidymodels)\n\n── Attaching packages ────────────────────────────────────── tidymodels 1.3.0 ──\n✔ broom        1.0.7     ✔ rsample      1.2.1\n✔ dials        1.4.0     ✔ tune         1.3.0\n✔ infer        1.0.7     ✔ workflows    1.2.0\n✔ modeldata    1.4.0     ✔ workflowsets 1.1.0\n✔ parsnip      1.3.1     ✔ yardstick    1.3.2\n✔ recipes      1.2.1     \n── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n✖ scales::discard() masks purrr::discard()\n✖ dplyr::filter()   masks stats::filter()\n✖ recipes::fixed()  masks stringr::fixed()\n✖ dplyr::lag()      masks stats::lag()\n✖ yardstick::spec() masks readr::spec()\n✖ recipes::step()   masks stats::step()\n\nlibrary(powerjoin)\nlibrary(glue)\nlibrary(vip) \n\n\nAttaching package: 'vip'\n\nThe following object is masked from 'package:utils':\n\n    vi\n\nlibrary(baguette)\nlibrary(dplyr)\nlibrary(rsample)\nlibrary(recipes)\nlibrary(baguette)\nlibrary(workflowsets)\n\n\n# root  &lt;- 'https://gdex.ucar.edu/dataset/camels/file'\n# download.file('https://gdex.ucar.edu/dataset/camels/file/camels_attributes_v2.0.pdf', \n#               'data/camels_attributes_v2.0.pdf')\n# \ntypes &lt;- c(\"clim\", \"geol\", \"soil\", \"topo\", \"vege\", \"hydro\")\n# remote_files  &lt;- glue('{root}/camels_{types}.txt')\nlocal_files   &lt;- glue('data/camels_{types}.txt')\n# walk2(remote_files, local_files, download.file, quiet = TRUE)\ncamels &lt;- map(local_files, read_delim, show_col_types = FALSE)\ncamels &lt;- power_full_join(camels ,by = 'gauge_id')"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#data-import-tidy-transform",
+    "href": "hyperparameter-tuning.html#data-import-tidy-transform",
+    "title": "hyperparameter-tuning",
+    "section": "",
+    "text": "library(ggthemes)\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.0.4     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(tidymodels)\n\n── Attaching packages ────────────────────────────────────── tidymodels 1.3.0 ──\n✔ broom        1.0.7     ✔ rsample      1.2.1\n✔ dials        1.4.0     ✔ tune         1.3.0\n✔ infer        1.0.7     ✔ workflows    1.2.0\n✔ modeldata    1.4.0     ✔ workflowsets 1.1.0\n✔ parsnip      1.3.1     ✔ yardstick    1.3.2\n✔ recipes      1.2.1     \n── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n✖ scales::discard() masks purrr::discard()\n✖ dplyr::filter()   masks stats::filter()\n✖ recipes::fixed()  masks stringr::fixed()\n✖ dplyr::lag()      masks stats::lag()\n✖ yardstick::spec() masks readr::spec()\n✖ recipes::step()   masks stats::step()\n\nlibrary(powerjoin)\nlibrary(glue)\nlibrary(vip) \n\n\nAttaching package: 'vip'\n\nThe following object is masked from 'package:utils':\n\n    vi\n\nlibrary(baguette)\nlibrary(dplyr)\nlibrary(rsample)\nlibrary(recipes)\nlibrary(baguette)\nlibrary(workflowsets)\n\n\n# root  &lt;- 'https://gdex.ucar.edu/dataset/camels/file'\n# download.file('https://gdex.ucar.edu/dataset/camels/file/camels_attributes_v2.0.pdf', \n#               'data/camels_attributes_v2.0.pdf')\n# \ntypes &lt;- c(\"clim\", \"geol\", \"soil\", \"topo\", \"vege\", \"hydro\")\n# remote_files  &lt;- glue('{root}/camels_{types}.txt')\nlocal_files   &lt;- glue('data/camels_{types}.txt')\n# walk2(remote_files, local_files, download.file, quiet = TRUE)\ncamels &lt;- map(local_files, read_delim, show_col_types = FALSE)\ncamels &lt;- power_full_join(camels ,by = 'gauge_id')"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#data-cleaning",
+    "href": "hyperparameter-tuning.html#data-cleaning",
+    "title": "hyperparameter-tuning",
+    "section": "Data cleaning:",
+    "text": "Data cleaning:\n\ncamels_clean &lt;- camels %&gt;%\n  mutate(\n    #gauge_id = as.character(gauge_id),\n    high_prec_timing = as.character(high_prec_timing),\n    low_prec_timing = as.character(low_prec_timing),\n    dom_land_cover  = as.character(dom_land_cover),\n    geol_1st_class  = as.character(geol_1st_class),\n    geol_2nd_class  = as.character(geol_2nd_class)) %&gt;% \n  mutate(across(where(is.numeric), ~ifelse(is.na(.), median(., na.rm = TRUE), .))) %&gt;%\n  mutate(q_mean = log(q_mean)) %&gt;% \n  select(aridity, high_prec_freq, low_prec_freq, gauge_lat, gauge_lon, q_mean) %&gt;% \n  drop_na()\n\nnames(camels_clean)\n\n[1] \"aridity\"        \"high_prec_freq\" \"low_prec_freq\"  \"gauge_lat\"     \n[5] \"gauge_lon\"      \"q_mean\""
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#data-splitting",
+    "href": "hyperparameter-tuning.html#data-splitting",
+    "title": "hyperparameter-tuning",
+    "section": "Data splitting:",
+    "text": "Data splitting:\n\nset.seed(123)\ndata_split &lt;- initial_split(camels_clean, prop = 0.8)\ntrain_data &lt;- training(data_split)\ntest_data &lt;- testing(data_split)\n\nfolds &lt;- vfold_cv(train_data, v = 10)"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#feature-engineering",
+    "href": "hyperparameter-tuning.html#feature-engineering",
+    "title": "hyperparameter-tuning",
+    "section": "Feature engineering:",
+    "text": "Feature engineering:\n\nrec &lt;- recipe(q_mean ~ ., data = train_data) %&gt;%\n  step_rm(gauge_lat, gauge_lon) %&gt;%\n  step_dummy(all_nominal_predictors()) %&gt;%\n  step_impute_median(all_numeric_predictors()) %&gt;%\n  step_normalize(all_numeric_predictors())"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#resampling-and-model-testing",
+    "href": "hyperparameter-tuning.html#resampling-and-model-testing",
+    "title": "hyperparameter-tuning",
+    "section": "Resampling and Model testing:",
+    "text": "Resampling and Model testing:\n\nlm_model &lt;- linear_reg() %&gt;%\n  set_engine(\"lm\") %&gt;%\n  set_mode(\"regression\")\n\nrf_model &lt;- rand_forest() %&gt;%\n  set_engine(\"ranger\", importance = \"impurity\") %&gt;%\n  set_mode(\"regression\")\n\nnn_model &lt;- bag_mlp() %&gt;%\n  set_engine(\"nnet\") %&gt;%\n  set_mode(\"regression\")\n\nwf &lt;- workflow_set(list(rec), list(lm_model, rf_model, nn_model)) %&gt;%\n  workflow_map(resamples = folds, \n               metrics = metric_set(rmse, rsq),\n               control = control_resamples(save_pred = TRUE)) \n\nautoplot(wf)"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#question-4-describe-the-model-you-selected.-what-is-the-model-type-engine-and-mode.-why-do-you-think-it-is-performing-well-for-this-problem",
+    "href": "hyperparameter-tuning.html#question-4-describe-the-model-you-selected.-what-is-the-model-type-engine-and-mode.-why-do-you-think-it-is-performing-well-for-this-problem",
+    "title": "hyperparameter-tuning",
+    "section": "Question 4: Describe the model you selected. What is the model type, engine, and mode. Why do you think it is performing well for this problem?",
+    "text": "Question 4: Describe the model you selected. What is the model type, engine, and mode. Why do you think it is performing well for this problem?\n\nThe model selected is a Random Forest model. It uses the ranger engine anad operares in regression mode. The model type is an ensemble learning method that builds multiple decision trees and combines their predictions, which typically improves accuracy and robustness. The model performs well with this lab because it handles non-linear relationships and interactions between predictors effectively. It is also resistant to overfitting, especially when combined with cross-validation, and performs well with correlated or partially informative features."
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#model-tuning",
+    "href": "hyperparameter-tuning.html#model-tuning",
+    "title": "hyperparameter-tuning",
+    "section": "Model Tuning:",
+    "text": "Model Tuning:\n\nnn_tune &lt;- bag_mlp(\n  hidden_units = tune(), \n  penalty = tune(), \n  epochs = tune()\n) %&gt;%\n  set_engine(\"nnet\") %&gt;%\n  set_mode(\"regression\")\n\nwf_tune &lt;- workflow() %&gt;%\n  add_recipe(rec) %&gt;%\n  add_model(nn_tune)\n\ndials &lt;- extract_parameter_set_dials(wf_tune)\ndials$object\n\n[[1]]\n\n\n# Hidden Units (quantitative)\n\n\nRange: [1, 10]\n\n\n\n[[2]]\n\n\nAmount of Regularization (quantitative)\n\n\nTransformer: log-10 [1e-100, Inf]\n\n\nRange (transformed scale): [-10, 0]\n\n\n\n[[3]]\n\n\n# Epochs (quantitative)\n\n\nRange: [10, 1000]\n\nmy.grid &lt;- grid_latin_hypercube(\n  dials,\n  size = 25\n)\n\nWarning: `grid_latin_hypercube()` was deprecated in dials 1.3.0.\nℹ Please use `grid_space_filling()` instead.\n\nmodel_params &lt;-  tune_grid(\n    wf_tune,\n    resamples = folds,\n    grid = my.grid,\n    metrics = metric_set(rmse, rsq, mae),\n    control = control_grid(save_pred = TRUE)\n  )\n\nautoplot(model_params)\n\n\n\n\n\n\n\ncollect_metrics(model_params) %&gt;%\n  arrange(mean)\n\n# A tibble: 75 × 9\n   hidden_units  penalty epochs .metric .estimator  mean     n std_err .config  \n          &lt;int&gt;    &lt;dbl&gt;  &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;    \n 1            7 1.17e- 4    700 mae     standard   0.299    10  0.0170 Preproce…\n 2            8 1.35e- 2    898 mae     standard   0.300    10  0.0171 Preproce…\n 3            8 8.95e- 4    794 mae     standard   0.301    10  0.0164 Preproce…\n 4            6 3.69e- 5    187 mae     standard   0.302    10  0.0179 Preproce…\n 5            9 2.29e- 8    225 mae     standard   0.304    10  0.0176 Preproce…\n 6            5 2.48e- 3    594 mae     standard   0.306    10  0.0175 Preproce…\n 7            9 5.54e- 9    132 mae     standard   0.307    10  0.0178 Preproce…\n 8            7 3.00e-10    308 mae     standard   0.313    10  0.0183 Preproce…\n 9            5 5.22e- 3    876 mae     standard   0.313    10  0.0185 Preproce…\n10            6 1.18e-10     78 mae     standard   0.315    10  0.0165 Preproce…\n# ℹ 65 more rows\n\nshow_best(model_params, metric = \"mae\")\n\n# A tibble: 5 × 9\n  hidden_units     penalty epochs .metric .estimator  mean     n std_err .config\n         &lt;int&gt;       &lt;dbl&gt;  &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1            7     1.17e-4    700 mae     standard   0.299    10  0.0170 Prepro…\n2            8     1.35e-2    898 mae     standard   0.300    10  0.0171 Prepro…\n3            8     8.95e-4    794 mae     standard   0.301    10  0.0164 Prepro…\n4            6     3.69e-5    187 mae     standard   0.302    10  0.0179 Prepro…\n5            9     2.29e-8    225 mae     standard   0.304    10  0.0176 Prepro…\n\nhp_best &lt;- select_best(model_params, metric = \"mae\")"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#question-5-please-interpret-the-results-of-the-first-row-of-show_best.-what-do-you-see-what-hyperparameter-set-is-best-for-this-model-based-on-mae",
+    "href": "hyperparameter-tuning.html#question-5-please-interpret-the-results-of-the-first-row-of-show_best.-what-do-you-see-what-hyperparameter-set-is-best-for-this-model-based-on-mae",
+    "title": "hyperparameter-tuning",
+    "section": "Question 5: Please interpret the results of the first row of show_best(). What do you see? What hyperparameter set is best for this model, based on MAE?",
+    "text": "Question 5: Please interpret the results of the first row of show_best(). What do you see? What hyperparameter set is best for this model, based on MAE?"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#use-the-collect_metrics-function-to-check-the-skill-of-the-tuned-model.-describe-what-you-see-remember-dplyr-functions-like-arrange-slice_-and-filter-will-work-on-this-tibble.",
+    "href": "hyperparameter-tuning.html#use-the-collect_metrics-function-to-check-the-skill-of-the-tuned-model.-describe-what-you-see-remember-dplyr-functions-like-arrange-slice_-and-filter-will-work-on-this-tibble.",
+    "title": "hyperparameter-tuning",
+    "section": "Use the collect_metrics() function to check the skill of the tuned model. Describe what you see, remember dplyr functions like arrange, slice_*, and filter will work on this tibble.",
+    "text": "Use the collect_metrics() function to check the skill of the tuned model. Describe what you see, remember dplyr functions like arrange, slice_*, and filter will work on this tibble.\n\nThe show_best() function filters to only the “mae” metric and shows the best parameter combinations. The mean MAE of 2.45 suggests the model has a prediction eroor of about 0.245 log units on q_mean, making it a relatively small error and implies good accuracy.\n\n\nThe collect_metrics() results show that the best-performing model, based on MAE, uses 7 hidden units. The results indicate both strong predictive skill and stable performance across resamples."
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#finalize-the-model",
+    "href": "hyperparameter-tuning.html#finalize-the-model",
+    "title": "hyperparameter-tuning",
+    "section": "Finalize the model:",
+    "text": "Finalize the model:\n\nfinal_wf &lt;- finalize_workflow(wf_tune, hp_best)\nfinal_fit &lt;- last_fit(final_wf, data_split)\n\nfinal_metrics &lt;- collect_metrics(final_fit)\nfinal_metrics\n\n# A tibble: 2 × 4\n  .metric .estimator .estimate .config             \n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               \n1 rmse    standard       0.432 Preprocessor1_Model1\n2 rsq     standard       0.859 Preprocessor1_Model1\n\nfinal_preds &lt;- collect_predictions(final_fit)\n\nggplot(final_preds, aes(x = .pred, y = q_mean)) +\n  geom_point(alpha = 0.5) +\n  geom_abline(slope = 1, intercept = 0, color = \"red\") +\n  geom_smooth(method = \"lm\", se = FALSE, color = \"blue\") +\n  scale_color_viridis_c() +\n  labs(x = \"Predicted log(q_mean)\", y = \"Actual log(q_mean)\",\n       title = \"Model Predictions vs Actual Values\",\n       subtitle = \"Test Set Performance\") +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'"
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#question-6-interpret-these-results.-how-does-the-final-model-perform-on-the-test-data-is-it-better-or-worse-than-the-training-data-use-your-knowledge-of-the-regression-based-metrics-to-describe-the-results.",
+    "href": "hyperparameter-tuning.html#question-6-interpret-these-results.-how-does-the-final-model-perform-on-the-test-data-is-it-better-or-worse-than-the-training-data-use-your-knowledge-of-the-regression-based-metrics-to-describe-the-results.",
+    "title": "hyperparameter-tuning",
+    "section": "Question 6: Interpret these results. How does the final model perform on the test data? Is it better or worse than the training data? Use your knowledge of the regression based metrics to describe the results.",
+    "text": "Question 6: Interpret these results. How does the final model perform on the test data? Is it better or worse than the training data? Use your knowledge of the regression based metrics to describe the results.\n\nThe final tuned model performs well on the data with predictions closely aligning yo actual values across most of the range of log(q_mean). There is some deviation, especially at lower flow values, the overall trend is strong as reflected at the blue regression line. The results indicate good generalization from training to test data."
+  },
+  {
+    "objectID": "hyperparameter-tuning.html#building-a-map",
+    "href": "hyperparameter-tuning.html#building-a-map",
+    "title": "hyperparameter-tuning",
+    "section": "Building a Map:",
+    "text": "Building a Map:\n\nlibrary(sf)\n\nLinking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE\n\nlibrary(patchwork)\n\nfull_fit &lt;- fit(final_wf, camels_clean)\ncamels_pred &lt;- camels_clean %&gt;%\n  bind_cols(predict(full_fit, new_data = camels_clean)) %&gt;%\n  mutate(residual = q_mean - .pred)\n\ncamels_sf &lt;- st_as_sf(camels_pred, \n                     coords = c(\"gauge_lon\", \"gauge_lat\"),\n                     crs = 4326)\nus_states &lt;- st_as_sf(maps::map(\"state\", plot = FALSE, fill = TRUE))\n\npred_map &lt;- ggplot() +\n  geom_sf(data = us_states, fill = \"gray95\", color = \"gray60\") +\n  geom_sf(data = camels_sf, aes(color = .pred), size = 2) +\n  scale_color_viridis_c() +\n  labs(title = \"Predicted Mean Streamflow Across US\") +\n  theme_map()\n\nresid_map &lt;- ggplot() +\n  geom_sf(data = us_states, fill = \"gray95\", color = \"gray60\") +\n  geom_sf(data = camels_sf, aes(color = residual), size = 2) +\n  scale_color_gradient2() +\n  labs(title = \"Model Residuals Across US\") +\n  theme_map()\n\ncombined_map &lt;- pred_map + resid_map \ncombined_map"
   }
 ]

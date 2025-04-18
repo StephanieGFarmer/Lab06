@@ -1,0 +1,194 @@
+---
+title: "hyperparameter-tuning"
+author: "Stephanie Farmer"
+date: "2025-04-18"
+format: html
+execute: 
+  echo: true
+---
+## Data import/ Tidy/ Transform 
+```{r}
+library(ggthemes)
+library(tidyverse)
+library(tidymodels)
+library(powerjoin)
+library(glue)
+library(vip) 
+library(baguette)
+library(dplyr)
+library(rsample)
+library(recipes)
+library(baguette)
+library(workflowsets)
+```
+```{r}
+# root  <- 'https://gdex.ucar.edu/dataset/camels/file'
+# download.file('https://gdex.ucar.edu/dataset/camels/file/camels_attributes_v2.0.pdf', 
+#               'data/camels_attributes_v2.0.pdf')
+# 
+types <- c("clim", "geol", "soil", "topo", "vege", "hydro")
+# remote_files  <- glue('{root}/camels_{types}.txt')
+local_files   <- glue('data/camels_{types}.txt')
+# walk2(remote_files, local_files, download.file, quiet = TRUE)
+camels <- map(local_files, read_delim, show_col_types = FALSE)
+camels <- power_full_join(camels ,by = 'gauge_id')
+```
+## Data cleaning:
+```{r}
+camels_clean <- camels %>%
+  mutate(
+    #gauge_id = as.character(gauge_id),
+    high_prec_timing = as.character(high_prec_timing),
+    low_prec_timing = as.character(low_prec_timing),
+    dom_land_cover  = as.character(dom_land_cover),
+    geol_1st_class  = as.character(geol_1st_class),
+    geol_2nd_class  = as.character(geol_2nd_class)) %>% 
+  mutate(across(where(is.numeric), ~ifelse(is.na(.), median(., na.rm = TRUE), .))) %>%
+  mutate(q_mean = log(q_mean)) %>% 
+  select(aridity, high_prec_freq, low_prec_freq, gauge_lat, gauge_lon, q_mean) %>% 
+  drop_na()
+
+names(camels_clean)
+```
+## Data splitting:
+```{r}
+set.seed(123)
+data_split <- initial_split(camels_clean, prop = 0.8)
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+folds <- vfold_cv(train_data, v = 10)
+```
+## Feature engineering: 
+```{r}
+rec <- recipe(q_mean ~ ., data = train_data) %>%
+  step_rm(gauge_lat, gauge_lon) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+## Resampling and Model testing:
+```{r}
+lm_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+rf_model <- rand_forest() %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("regression")
+
+nn_model <- bag_mlp() %>%
+  set_engine("nnet") %>%
+  set_mode("regression")
+
+wf <- workflow_set(list(rec), list(lm_model, rf_model, nn_model)) %>%
+  workflow_map(resamples = folds, 
+               metrics = metric_set(rmse, rsq),
+               control = control_resamples(save_pred = TRUE)) 
+
+autoplot(wf)
+```
+## Question 4: Describe the model you selected. What is the model type, engine, and mode. Why do you think it is performing well for this problem?
+### The model selected is a Random Forest model. It uses the ranger engine anad operares in regression mode. The model type is an ensemble learning method that builds multiple decision trees and combines their predictions, which typically improves accuracy and robustness. The model performs well with this lab because it handles non-linear relationships and interactions between predictors effectively. It is also resistant to overfitting, especially when combined with cross-validation, and performs well with correlated or partially informative features. 
+
+## Model Tuning: 
+```{r}
+nn_tune <- bag_mlp(
+  hidden_units = tune(), 
+  penalty = tune(), 
+  epochs = tune()
+) %>%
+  set_engine("nnet") %>%
+  set_mode("regression")
+
+wf_tune <- workflow() %>%
+  add_recipe(rec) %>%
+  add_model(nn_tune)
+
+dials <- extract_parameter_set_dials(wf_tune)
+dials$object
+
+my.grid <- grid_latin_hypercube(
+  dials,
+  size = 25
+)
+
+model_params <-  tune_grid(
+    wf_tune,
+    resamples = folds,
+    grid = my.grid,
+    metrics = metric_set(rmse, rsq, mae),
+    control = control_grid(save_pred = TRUE)
+  )
+
+autoplot(model_params)
+
+collect_metrics(model_params) %>%
+  arrange(mean)
+show_best(model_params, metric = "mae")
+hp_best <- select_best(model_params, metric = "mae")
+```
+## Question 5: Please interpret the results of the first row of show_best(). What do you see? What hyperparameter set is best for this model, based on MAE?
+## Use the collect_metrics() function to check the skill of the tuned model. Describe what you see, remember dplyr functions like arrange, slice_*, and filter will work on this tibble.
+### The show_best() function filters to only the "mae" metric and shows the best parameter combinations. The mean MAE of 2.45 suggests the model has a prediction eroor of about 0.245 log units on q_mean, making it a relatively small error and implies good accuracy. 
+### The collect_metrics() results show that the best-performing model, based on MAE, uses 7 hidden units. The results indicate both strong predictive skill and stable performance across resamples. 
+
+## Finalize the model:
+```{r}
+final_wf <- finalize_workflow(wf_tune, hp_best)
+final_fit <- last_fit(final_wf, data_split)
+
+final_metrics <- collect_metrics(final_fit)
+final_metrics
+final_preds <- collect_predictions(final_fit)
+
+ggplot(final_preds, aes(x = .pred, y = q_mean)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  scale_color_viridis_c() +
+  labs(x = "Predicted log(q_mean)", y = "Actual log(q_mean)",
+       title = "Model Predictions vs Actual Values",
+       subtitle = "Test Set Performance") +
+  theme_minimal()
+```
+## Question 6: Interpret these results. How does the final model perform on the test data? Is it better or worse than the training data? Use your knowledge of the regression based metrics to describe the results.
+### The final tuned model performs well on the data with predictions closely aligning yo actual values across most of the range of log(q_mean). There is some deviation, especially at lower flow values, the overall trend is strong as reflected at the blue regression line. The results indicate good generalization from training to test data. 
+
+## Building a Map:
+```{r}
+library(sf)
+library(patchwork)
+
+full_fit <- fit(final_wf, camels_clean)
+camels_pred <- camels_clean %>%
+  bind_cols(predict(full_fit, new_data = camels_clean)) %>%
+  mutate(residual = q_mean - .pred)
+
+camels_sf <- st_as_sf(camels_pred, 
+                     coords = c("gauge_lon", "gauge_lat"),
+                     crs = 4326)
+us_states <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+
+pred_map <- ggplot() +
+  geom_sf(data = us_states, fill = "gray95", color = "gray60") +
+  geom_sf(data = camels_sf, aes(color = .pred), size = 2) +
+  scale_color_viridis_c() +
+  labs(title = "Predicted Mean Streamflow Across US") +
+  theme_map()
+
+resid_map <- ggplot() +
+  geom_sf(data = us_states, fill = "gray95", color = "gray60") +
+  geom_sf(data = camels_sf, aes(color = residual), size = 2) +
+  scale_color_gradient2() +
+  labs(title = "Model Residuals Across US") +
+  theme_map()
+
+combined_map <- pred_map + resid_map 
+combined_map
+```
+
+
+
+
+
